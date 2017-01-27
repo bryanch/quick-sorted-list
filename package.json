@@ -1,0 +1,26 @@
+{
+  "name": "quick-sorted-list",
+  "version": "1.0.0",
+  "description": "A sorted list using AVL the balanced binary search tree.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bryanch/quick-sorted-list.git"
+  },
+  "keywords": [
+    "sorted list",
+    "BST",
+    "binary search tree",
+    "balanced binary tree",
+    "AVL"
+  ],
+  "author": "Bryan Chen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bryanch/quick-sorted-list/issues"
+  },
+  "homepage": "https://github.com/bryanch/quick-sorted-list#readme"
+}
