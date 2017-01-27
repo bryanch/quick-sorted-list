@@ -123,10 +123,12 @@ var SortedList = defineClass({
         AVLTree.prototype.comparer = comparer || defaultComparer;
 
         this.data = new AVLTree();
+        this.length = 0;
     },
 
     insert: function(element){
         this.data = this.data.insert(element);
+        this.length++;
     },
 
     insertBatch: function(elements){
