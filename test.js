@@ -42,10 +42,15 @@ describe('sorted-list', function(){
         for(var i = 0; i< randomSize; i++){
             var v = Math.random();
             raws.push(v);
-            sorted.insert(v);
         }
-
-        raws.sort();
+        
+        console.time('insert-'+randomSize+'-random-number');
+        sorted.insertBatch(raws);
+        console.timeEnd('insert-'+randomSize+'-random-number');
+        
+        console.time('standard sorting of '+randomSize+' random number');
+        raws.sort(function(a,b){return a-b;});
+        console.timeEnd('standard sorting of '+randomSize+' random number');
 
         expect(sorted.toArray()).to.eql(raws);
     });
@@ -55,23 +60,33 @@ describe('sorted-list', function(){
         sorted.insertBatch(rawdata);
         //sorted.print();
         
+        console.time('Cut operation 1');
         var removed = sorted.cut(-1, 'left', true);
+        console.timeEnd('Cut operation 1');
         expect(removed).to.eql([-3, -2, -1]);
         expect(sorted.toArray()).to.eql([0, 2, 2, 5, 7, 8, 10, 11, 22]);
 
+        console.time('Cut operation 2');
         removed = sorted.cut(2, 'left', false);
+        console.timeEnd('Cut operation 2');
         expect(removed).to.eql([0]);
         expect(sorted.toArray()).to.eql([2, 2, 5, 7, 8, 10, 11, 22]);
 
+        console.time('Cut operation 3');
         removed = sorted.cut(2, 'left', true);
+        console.timeEnd('Cut operation 3');
         expect(removed).to.eql([2,2]);
         expect(sorted.toArray()).to.eql([5, 7, 8, 10, 11, 22]);
 
+        console.time('Cut operation 4');
         removed = sorted.cut(6, 'right', false);
+        console.timeEnd('Cut operation 4');
         expect(removed).to.eql([7, 8, 10, 11, 22]);
         expect(sorted.toArray()).to.eql([5]);
 
+        console.time('Cut operation 5');
         removed = sorted.cut(4, 'right', false);
+        console.timeEnd('Cut operation 5');
         expect(removed).to.eql([5]);
         expect(sorted.toArray()).to.eql([]);
     });
