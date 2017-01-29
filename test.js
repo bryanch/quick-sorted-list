@@ -40,5 +40,34 @@ describe('sorted-list', function(){
         expect(target2.length).to.equal(6);
     });
 
+    var randomSize = 1000;
+    it('validate '+randomSize+' random numbers.', function(){
+        var raws = [];
+        var sorted = new SortedList();
+
+        for(var i = 0; i< randomSize; i++){
+            var v = Math.random();
+            raws.push(v);
+            sorted.insert(v);
+        }
+
+        raws.sort();
+
+        expect(sorted.toArray()).to.eql(raws);
+    });
+
+    it('validate cut function', function(){
+        var raw = [10, 5, 22, 2, -2, 0, 11, -1, 7, 2, 8, -3];
+        var sorted = new SortedList();
+        sorted.insertBatch(raw);
+        sorted.print();
+        
+        expect(sorted.toArray()).to.eql([-3, -2, -1, 0, 2, 2, 5, 7, 8, 10, 11, 22]);
+
+        var removed = sorted.cut(9, 'left', true);
+        expect(removed).to.eql([-3, -2, -1, 0, 2, 2, 5, 7, 8]);
+        expect(sorted.toArray()).to.eql([10, 11, 22]);
+    });
+
 });
 
