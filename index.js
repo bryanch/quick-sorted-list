@@ -158,7 +158,7 @@ var SortedList = defineClass({
                     return node;
                 }
 
-                if(node.left || node.right || node.height>0){
+                if(node.left || node.right || node.height>1){
                     throw error("node should be singleton for insertNode function.");
                 }
 
@@ -281,7 +281,8 @@ var SortedList = defineClass({
 
         AVLTree.prototype.comparer = comparer || defaultComparer;
 
-        this.data = new AVLTree();
+        this.createNewHead = function(){return new AVLTree();};
+        this.data = this.createNewHead();
         this.length = 0;
     },
 
@@ -356,6 +357,7 @@ var SortedList = defineClass({
         var s = (side=='left')?'left':'right';
         var removed = [];
         this.data = this.data.cut(element, s, inclusive, removed);
+        if(this.data==null)this.data = this.createNewHead();
 
         var result = [];
         removed.forEach(function(element) {

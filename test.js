@@ -55,9 +55,25 @@ describe('sorted-list', function(){
         sorted.insertBatch(rawdata);
         //sorted.print();
         
-        var removed = sorted.cut(9, 'left', true);
-        expect(removed).to.eql([-3, -2, -1, 0, 2, 2, 5, 7, 8]);
-        expect(sorted.toArray()).to.eql([10, 11, 22]);
+        var removed = sorted.cut(-1, 'left', true);
+        expect(removed).to.eql([-3, -2, -1]);
+        expect(sorted.toArray()).to.eql([0, 2, 2, 5, 7, 8, 10, 11, 22]);
+
+        removed = sorted.cut(2, 'left', false);
+        expect(removed).to.eql([0]);
+        expect(sorted.toArray()).to.eql([2, 2, 5, 7, 8, 10, 11, 22]);
+
+        removed = sorted.cut(2, 'left', true);
+        expect(removed).to.eql([2,2]);
+        expect(sorted.toArray()).to.eql([5, 7, 8, 10, 11, 22]);
+
+        removed = sorted.cut(6, 'right', false);
+        expect(removed).to.eql([7, 8, 10, 11, 22]);
+        expect(sorted.toArray()).to.eql([5]);
+
+        removed = sorted.cut(4, 'right', false);
+        expect(removed).to.eql([5]);
+        expect(sorted.toArray()).to.eql([]);
     });
 
 });
