@@ -20,6 +20,10 @@ function getHeight(tree){
     return tree==null?0:tree.height;
 }
 
+function updateHeight(tree){
+    tree.height = max(getHeight(tree.left), getHeight(tree.right))+1;
+}
+
 function rotateLeft(tree){
     var root = tree.right;
     tree.right = root.left;
@@ -139,7 +143,9 @@ var SortedList = defineClass({
 
                         var previousHeight = this.right.height;
                         this.right = this.right.insert(element);
-                        return balanceAfterInsertRight(this, previousHeight);
+                        this.height = max(getHeight(this.left), getHeight(this.right))+1;
+                        return balanceOnce(this);
+                        //return balanceAfterInsertRight(this, previousHeight);
                     }
                     else{
                         if(this.left==null){
@@ -148,7 +154,9 @@ var SortedList = defineClass({
 
                         var previousHeight = this.left.height;
                         this.left = this.left.insert(element);
-                        return balanceAfterInsertLeft(this, previousHeight);
+                        this.height = max(getHeight(this.left), getHeight(this.right))+1;
+                        return balanceOnce(this);
+                        //return balanceAfterInsertLeft(this, previousHeight);
                     }
                 }
             },
@@ -211,7 +219,7 @@ var SortedList = defineClass({
                             this.left=null;
                             this.right=null;
                             this.height=1;
-                            return newHead.insertNode(this);
+                            return newHead==null?newHead:newHead.insertNode(this);
                         }
                     }
                     else{
@@ -226,7 +234,7 @@ var SortedList = defineClass({
                             this.left=null;
                             this.right=null;
                             this.height=1;
-                            return newHead.insertNode(this);
+                            return newHead==null?newHead:newHead.insertNode(this);
                         }
                     }
                 }
