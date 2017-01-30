@@ -51,3 +51,24 @@ console.log(removed);         // [-3, -2, -1];
 console.log(sorted.toArray()) //[0, 2, 2, 5, 7, 8, 10, 11, 22]);
 
 ```
+### - iloc ###
+Find the element located at the *index* position of the list.
+```
+var sorted = new SortedList();
+sorted.insertBatch([10, 5, 22, 2, -2, 0, 11, -1, 7, 2, 8, -3]);
+// Now they are sorted as [-3, -2, -1, 0, 2, 2, 5, 7, 8, 10, 11, 22]
+
+sorted.iloc(5); // the 6th element in the sorted list is 2.
+```
+
+### - loc ###
+Find the index in the sorted list where the given element could be inserted. 
+The second parameter is to specify at which side we want to insert the given element, accept either 'left' or 'right'.
+```
+var sorted = new SortedList();
+sorted.insertBatch([10, 5, 22, 2, -2, 0, 11, -1, 7, 2, 8, -3]); 
+// Now they are sorted as [-3, -2, -1, 0, 2, 2, 5, 7, 8, 10, 11, 22]
+
+sorted.loc(5, 'left'); // the first place (by insert to the 'left' side of same values) to insert is 6.
+sorted.loc(7, 'right'); // the last place (by insert to the 'right' side of same values) to insert is 8.
+```
