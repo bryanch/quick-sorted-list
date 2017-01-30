@@ -21,49 +21,39 @@ function getHeight(tree){
 }
 
 function updateHeight(tree){
-    tree.height = max(getHeight(tree.left), getHeight(tree.right))+1;
+    tree.height = max(getHeight(tree.nodes[0]), getHeight(tree.nodes[1]))+1;
 }
 
-function rotateLeft(tree){
-    var root = tree.right;
-    tree.right = root.left;
-    root.left = tree;
-    tree.height = max(getHeight(tree.left), getHeight(tree.right))+1;
-    root.height = max(root.left.height, getHeight(root.right))+1;
-    return root;
+function getOpposite(side){
+    return 1^side;
 }
 
-function rotateRight(tree){
-    var root = tree.left;
-    tree.left = root.right;
-    root.right = tree;
-    tree.height = max(getHeight(tree.left), getHeight(tree.right))+1;
-    root.height = max(getHeight(root.left), root.right.height)+1;
+function rotate(tree, side){
+    var opposite = 1^side;
+    var root = tree.nodes[opposite];
+    tree.nodes[opposite] = root.nodes[side];
+    root.nodes[side] = tree;
+    updateHeight(tree);
+    updateHeight(root);
     return root;
 }
 
 function getHeightDiff(tree){
-    return getHeight(tree.right)-getHeight(tree.left);
+    return getHeight(tree.nodes[1])-getHeight(tree.nodes[0]);
 }
 
 function balanceOnce(tree){
     var heightDiff = getHeightDiff(tree);
-    if(heightDiff>1){
-        if(getHeightDiff(tree.right)<0){
-            tree.right=rotateRight(tree.right);
-        }
-
-        return rotateLeft(tree);
-    }
-    else if(heightDiff<-1){
-        if(getHeightDiff(tree.left)>0){
-            tree.left=rotateLeft(tree.left);
-        }
-
-        return rotateRight(tree);
+    if(heightDiff<=1 && heightDiff>=-1)
+        return tree;
+    
+    var heavySide = heightDiff>0?1:0;
+    var subDiff = getHeightDiff(tree.nodes[heavySide]);
+    if(subDiff!==0 && ((subDiff>0?1:0)^heavySide)==1){
+        tree.nodes[heavySide]=rotate(tree.nodes[heavySide], heavySide);
     }
 
-    return tree;
+    return rotate(tree, 1^heavySide);
 }
 
 function balance(tree){
@@ -76,52 +66,13 @@ function balance(tree){
     return newHead;
 }
 
-function balanceAfterInsertRight(tree, prevRightHeight){
-    if(tree.right.height>prevRightHeight){
-        var leftHeight = getHeight(tree.left);
-        if(prevRightHeight>leftHeight){
-            if(getHeight(tree.right.left)>getHeight(tree.right.right)){
-                tree.right = rotateRight(tree.right);
-            }
-
-            return rotateLeft(tree);
-        }
-        else{
-            tree.height = tree.right.height+1;
-            return tree;
-        }
-    }
-    else
-        return tree;
-}
-
-function balanceAfterInsertLeft(tree, prevLeftHeight){
-    if(tree.left.height>prevLeftHeight){
-        var rightHeight = getHeight(tree.right);
-        if(prevLeftHeight>rightHeight){
-            if(getHeight(tree.left.right)>getHeight(tree.left.left)){
-                tree.left = rotateLeft(tree.left);
-            }
-
-            return rotateRight(tree);
-        }
-        else{
-            tree.height = tree.left.height+1;
-            return tree;
-        }
-    }
-    else
-        return tree;
-}
-
 var SortedList = defineClass({
     constructor: function(comparer){
         var AVLTree = defineClass({
             constructor: function(){
-                this.left = null;
-                this.right = null;
-                this.height = 0;
+                this.nodes = [null, null];
                 this.data = [];
+                this.height = 0;
             },
 
             insert: function(element){
@@ -136,28 +87,14 @@ var SortedList = defineClass({
                         this.data.push(element);
                         return this;
                     }
-                    else if(check>0){
-                        if(this.right==null){
-                            this.right=new AVLTree();
-                        }
-
-                        var previousHeight = this.right.height;
-                        this.right = this.right.insert(element);
-                        this.height = max(getHeight(this.left), getHeight(this.right))+1;
-                        return balanceOnce(this);
-                        //return balanceAfterInsertRight(this, previousHeight);
-                    }
-                    else{
-                        if(this.left==null){
-                            this.left=new AVLTree();
-                        }
-
-                        var previousHeight = this.left.height;
-                        this.left = this.left.insert(element);
-                        this.height = max(getHeight(this.left), getHeight(this.right))+1;
-                        return balanceOnce(this);
-                        //return balanceAfterInsertLeft(this, previousHeight);
-                    }
+                    
+                    var side = check>0?1:0;
+                    if(this.nodes[side]==null)
+                        this.nodes[side]=new AVLTree();
+                    
+                    this.nodes[side]=this.nodes[side].insert(element);
+                    updateHeight(this);
+                    return balanceOnce(this);
                 }
             },
 
@@ -166,38 +103,24 @@ var SortedList = defineClass({
                     return node;
                 }
 
-                if(node.left || node.right || node.height>1){
+                if(node.nodes[0] || node.nodes[1] || node.height>1){
                     throw error("node should be singleton for insertNode function.");
                 }
 
                 var sample = node.data[0];
                 var check = this.comparer(sample, this.data[0]);
                 if(check===0){
-                    throw error("node should not exist.");
+                    throw new Error("node with the same value '"+sample+"' should not exist.");
                 }
 
-                if(check>0){
-                    if(this.right==null){
-                        this.right = node;
-                        this.height = max(this.height, this.right.height+1);
-                        return this;
-                    }
-
-                    var previousHeight = this.right.height;
-                    this.right = this.right.insertNode(node);
-                    return balanceAfterInsertRight(this, previousHeight);
-                }
-                else{
-                    if(this.left==null){
-                        this.left = node;
-                        this.height = max(this.height, this.left.height+1);
-                        return this;
-                    }
-
-                    var previousHeight = this.left.height;
-                    this.left = this.left.insertNode(node);
-                    return balanceAfterInsertLeft(this, previousHeight);
-                }
+                var side = check>0?1:0;
+                if(this.nodes[side]==null)
+                    this.nodes[side]=node;
+                else
+                    this.nodes[side]=this.nodes[side].insertNode(node);
+                    
+                updateHeight(this);
+                return balanceOnce(this);
             },
 
             cut: function(element, side, includeHead, removed){
@@ -206,83 +129,45 @@ var SortedList = defineClass({
                 }
 
                 var check = this.comparer(element, this.data[0]);
-                if(check==0){
-                    if(side=='left'){
-                        var newHead = this.right;
-                        if(includeHead){
-                            this.right = null;
-                            if(removed)removed.push(this);
-                            return newHead;
-                        }
-                        else{
-                            if(removed&&this.left)removed.push(this.left);
-                            this.left=null;
-                            this.right=null;
-                            this.height=1;
-                            return newHead==null?newHead:newHead.insertNode(this);
-                        }
-                    }
-                    else{
-                        var newHead = this.left;
-                        if(includeHead){
-                            this.left = null;
-                            if(removed)removed.push(this);
-                            return newHead;
-                        }
-                        else{
-                            if(removed&&this.right)removed.push(this.right);
-                            this.left=null;
-                            this.right=null;
-                            this.height=1;
-                            return newHead==null?newHead:newHead.insertNode(this);
-                        }
-                    }
-                }
-                else if(check>0){
-                    if(side=='left'){
-                        var newHead = this.right;
-                        this.right = null;
-                        if(removed)removed.push(this);
-                            
-                        return newHead==null?newHead:newHead.cut(element, side, includeHead, removed);
-                    }
-                    else{
-                        if(this.right==null){
-                            return this;
-                        }
-                        else{
-                            this.right = this.right.cut(element, side, includeHead, removed);
-                            this.height = max(getHeight(this.right)+getHeight(this.left))+1;
-                            return balance(this);
-                        }
-                    }
-                }
-                else{
-                    if(side=='right'){
-                        var newHead = this.left;
-                        newHead = (newHead==null)?newHead:newHead.cut(element, side, includeHead, removed);
-                        this.left = null;
+                var opSide = 1^side;
+                if(check===0){
+                    var newHead = this.nodes[opSide];
+                    if(includeHead){
+                        this.nodes[opSide] = null;
                         if(removed)removed.push(this);
                         return newHead;
                     }
                     else{
-                        if(this.left==null){
-                            return this;
-                        }
-                        else{
-                            this.left = this.left.cut(element, side, includeHead, removed);
-                            this.height = max(getHeight(this.right)+getHeight(this.left))+1;
-                            return balance(this);
-                        }
+                        if(removed&&this.nodes[side])removed.push(this.nodes[side]);
+                        this.nodes=[null, null];
+                        this.height=1;
+                        return newHead==null?null:newHead.insertNode(this);
                     }
+                }
+
+                var nextSide=check>0?1:0;
+                if(nextSide==side){
+                    if(this.nodes[side]==null)return this;
+
+                    this.nodes[side] = this.nodes[side].cut(element, side, includeHead, removed);
+                    updateHeight(this);
+                    return balance(this);
+                }
+                else{
+                    var newHead = this.nodes[opSide];
+                    this.nodes[opSide]=null;
+                    if((side==0)&&removed)removed.push(this);
+                    if(newHead!=null)newHead=newHead.cut(element, side, includeHead, removed);
+                    if((side==1)&&removed)removed.push(this);
+                    return newHead;
                 }
             },
 
             toArray: function(){
                 var result = [];
-                if(this.left!=null)result=result.concat(this.left.toArray());
+                if(this.nodes[0]!=null)result=result.concat(this.nodes[0].toArray());
                 result=result.concat(this.data);
-                if(this.right!=null)result=result.concat(this.right.toArray());
+                if(this.nodes[1]!=null)result=result.concat(this.nodes[1].toArray());
                 return result;
             }
         });
@@ -345,10 +230,10 @@ var SortedList = defineClass({
                     newQueue.push(null);
                 }
                 else{
-                    if(head.left)countNode++;
-                    if(head.right)countNode++;
-                    newQueue.push(head.left);
-                    newQueue.push(head.right);
+                    if(head.nodes[0])countNode++;
+                    if(head.nodes[1])countNode++;
+                    newQueue.push(head.nodes[0]);
+                    newQueue.push(head.nodes[1]);
                 }
 
                 if(i>0)
@@ -362,7 +247,7 @@ var SortedList = defineClass({
     },
 
     cut: function(element, side, inclusive){
-        var s = (side=='left')?'left':'right';
+        var s = (side=='left')?0:1;
         var removed = [];
         this.data = this.data.cut(element, s, inclusive, removed);
         if(this.data==null)this.data = this.createNewHead();
