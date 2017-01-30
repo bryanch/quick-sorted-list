@@ -20,6 +20,10 @@ function getHeight(tree){
     return tree==null?0:tree.height;
 }
 
+function getDataCount(tree){
+    return tree==null?0:tree.count;
+}
+
 function updateHeight(tree){
     tree.height = max(getHeight(tree.left), getHeight(tree.right))+1;
 }
@@ -29,7 +33,9 @@ function rotateLeft(tree){
     tree.right = root.left;
     root.left = tree;
     tree.height = max(getHeight(tree.left), getHeight(tree.right))+1;
+    tree.count = getDataCount(tree.left)+tree.data.length+getDataCount(tree.right);
     root.height = max(root.left.height, getHeight(root.right))+1;
+    root.count = root.left.count+root.data.length+getDataCount(root.right);
     return root;
 }
 
@@ -38,7 +44,9 @@ function rotateRight(tree){
     tree.left = root.right;
     root.right = tree;
     tree.height = max(getHeight(tree.left), getHeight(tree.right))+1;
+    tree.count = getDataCount(tree.left)+tree.data.length+getDataCount(tree.right);
     root.height = max(getHeight(root.left), root.right.height)+1;
+    root.count = getDataCount(root.left)+root.data.length+root.right.count;
     return root;
 }
 
@@ -121,10 +129,12 @@ var SortedList = defineClass({
                 this.left = null;
                 this.right = null;
                 this.height = 0;
+                this.count = 0;
                 this.data = [];
             },
 
             insert: function(element){
+                this.count++;
                 if(this.data.length===0){
                     this.data.push(element);
                     this.height = 1;
@@ -298,8 +308,10 @@ var SortedList = defineClass({
     },
 
     insertBatch: function(elements){
-        var self=this;
-        elements.forEach(function(e){self.insert(e);});
+        var data = this.data;
+        elements.forEach(function(e){data=data.insert(e);});
+        this.data = data;
+        this.length = data.count;
     },
 
     toArray: function(){
@@ -374,6 +386,7 @@ var SortedList = defineClass({
             result = result.concat(element.toArray());  
         });
 
+        this.length = this.data.count;
         return result;
     }
 });
