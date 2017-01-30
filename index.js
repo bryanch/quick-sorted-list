@@ -301,6 +301,19 @@ var SortedList = defineClass({
                 return this.right.iloc(index-this.data.length);
             },
 
+            loc: function(element, side){
+                if(this.data.length==0)
+                    return 0;
+                
+                var check = this.comparer(element, this.data[0]);
+                if(check==0)
+                    return side=='left'?getDataCount(this.left):getDataCount(this.left)+this.data.length;
+                else if(check>0)
+                    return this.right==null?this.count:getDataCount(this.left)+this.data.length+this.right.loc(element, side);
+                else
+                    return this.left==null?0:this.left.loc(element, side);
+            },
+
             toArray: function(){
                 var result = [];
                 if(this.left!=null)result=result.concat(this.left.toArray());
@@ -407,6 +420,10 @@ var SortedList = defineClass({
 
     iloc: function(index){
         return this.data.iloc(index);
+    },
+
+    loc: function(element, side){
+        return this.data.loc(element, side);
     }
 });
 

@@ -113,5 +113,13 @@ describe('sorted-list', function(){
         expect(sorted.iloc(6)).to.equal(10);
     });
 
+    it('validate loc function', function(){
+        var sorted = new SortedList();
+        sorted.insertBatch(rawdata);
+        
+        expect(sorted.loc(6, 'left')).to.equal(7);
+        expect(sorted.loc(2, 'right')).to.equal(6);
+    });
+
 });
 
