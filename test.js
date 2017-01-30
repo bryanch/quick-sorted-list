@@ -95,5 +95,14 @@ describe('sorted-list', function(){
         expect(sorted.toArray()).to.eql([]);
     });
 
+    it('validate data length', function(){
+        var sorted = new SortedList();
+        sorted.insertBatch(rawdata);
+        expect(sorted.length).to.equal(rawdata.length);
+        
+        var removed = sorted.cut(-1, 'left', true);
+        expect(sorted.length).to.equal(rawdata.length-removed.length);
+    });
+
 });
 

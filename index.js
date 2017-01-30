@@ -20,8 +20,13 @@ function getHeight(tree){
     return tree==null?0:tree.height;
 }
 
-function updateHeight(tree){
+function getDataCount(tree){
+    return tree==null?0:tree.count;
+}
+
+function updateTreeStats(tree){
     tree.height = max(getHeight(tree.nodes[0]), getHeight(tree.nodes[1]))+1;
+    tree.count = getDataCount(tree.nodes[0])+tree.data.length+getDataCount(tree.nodes[1]);
 }
 
 function getOpposite(side){
@@ -33,8 +38,8 @@ function rotate(tree, side){
     var root = tree.nodes[opposite];
     tree.nodes[opposite] = root.nodes[side];
     root.nodes[side] = tree;
-    updateHeight(tree);
-    updateHeight(root);
+    updateTreeStats(tree);
+    updateTreeStats(root);
     return root;
 }
 
@@ -73,9 +78,11 @@ var SortedList = defineClass({
                 this.nodes = [null, null];
                 this.data = [];
                 this.height = 0;
+                this.count = 0;
             },
 
             insert: function(element){
+                this.count++;
                 if(this.data.length===0){
                     this.data.push(element);
                     this.height = 1;
@@ -93,7 +100,7 @@ var SortedList = defineClass({
                         this.nodes[side]=new AVLTree();
                     
                     this.nodes[side]=this.nodes[side].insert(element);
-                    updateHeight(this);
+                    updateTreeStats(this);
                     return balanceOnce(this);
                 }
             },
@@ -119,7 +126,7 @@ var SortedList = defineClass({
                 else
                     this.nodes[side]=this.nodes[side].insertNode(node);
                     
-                updateHeight(this);
+                updateTreeStats(this);
                 return balanceOnce(this);
             },
 
@@ -150,7 +157,7 @@ var SortedList = defineClass({
                     if(this.nodes[side]==null)return this;
 
                     this.nodes[side] = this.nodes[side].cut(element, side, includeHead, removed);
-                    updateHeight(this);
+                    updateTreeStats(this);
                     return balance(this);
                 }
                 else{
@@ -181,12 +188,13 @@ var SortedList = defineClass({
 
     insert: function(element){
         this.data = this.data.insert(element);
-        this.length++;
+        this.length = this.data.count;
     },
 
     insertBatch: function(elements){
         var self=this;
-        elements.forEach(function(e){self.insert(e);});
+        elements.forEach(function(e){self.data = self.data.insert(e);});
+        self.length=self.data.count;
     },
 
     toArray: function(){
@@ -261,6 +269,8 @@ var SortedList = defineClass({
         removed.forEach(function(element) {
             result = result.concat(element.toArray());  
         });
+
+        this.length = this.data.count;
 
         return result;
     }
