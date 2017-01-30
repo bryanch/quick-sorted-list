@@ -210,7 +210,7 @@ var SortedList = defineClass({
 
             cut: function(element, side, includeHead, removed){
                 if(this.data.length==0){
-                    return [];
+                    return this;
                 }
 
                 var check = this.comparer(element, this.data[0]);
