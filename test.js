@@ -58,7 +58,7 @@ describe('sorted-list', function(){
     it('validate cut function', function(){
         var sorted = new SortedList();
         sorted.insertBatch(rawdata);
-        //sorted.print();
+        sorted.print();
         
         console.time('Cut operation 1');
         var removed = sorted.cut(-1, 'left', true);
@@ -66,29 +66,42 @@ describe('sorted-list', function(){
         expect(removed).to.eql([-3, -2, -1]);
         expect(sorted.toArray()).to.eql([0, 2, 2, 5, 7, 8, 10, 11, 22]);
 
+        sorted.print();
         console.time('Cut operation 2');
         removed = sorted.cut(2, 'left', false);
         console.timeEnd('Cut operation 2');
         expect(removed).to.eql([0]);
         expect(sorted.toArray()).to.eql([2, 2, 5, 7, 8, 10, 11, 22]);
 
+        sorted.print();
         console.time('Cut operation 3');
         removed = sorted.cut(2, 'left', true);
         console.timeEnd('Cut operation 3');
         expect(removed).to.eql([2,2]);
         expect(sorted.toArray()).to.eql([5, 7, 8, 10, 11, 22]);
 
+        sorted.print();
         console.time('Cut operation 4');
         removed = sorted.cut(6, 'right', false);
         console.timeEnd('Cut operation 4');
         expect(removed).to.eql([7, 8, 10, 11, 22]);
         expect(sorted.toArray()).to.eql([5]);
 
+        sorted.print();
         console.time('Cut operation 5');
         removed = sorted.cut(4, 'right', false);
         console.timeEnd('Cut operation 5');
         expect(removed).to.eql([5]);
         expect(sorted.toArray()).to.eql([]);
+    });
+
+    it('validate data length', function(){
+        var sorted = new SortedList();
+        sorted.insertBatch(rawdata);
+        expect(sorted.length).to.equal(rawdata.length);
+        
+        var removed = sorted.cut(-1, 'left', true);
+        expect(sorted.length).to.equal(rawdata.length-removed.length);
     });
 
 });
