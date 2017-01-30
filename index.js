@@ -143,9 +143,8 @@ var SortedList = defineClass({
 
                         var previousHeight = this.right.height;
                         this.right = this.right.insert(element);
-                        this.height = max(getHeight(this.left), getHeight(this.right))+1;
-                        return balanceOnce(this);
-                        //return balanceAfterInsertRight(this, previousHeight);
+                        updateHeight(this);
+                        return balanceAfterInsertRight(this, previousHeight);
                     }
                     else{
                         if(this.left==null){
@@ -154,9 +153,8 @@ var SortedList = defineClass({
 
                         var previousHeight = this.left.height;
                         this.left = this.left.insert(element);
-                        this.height = max(getHeight(this.left), getHeight(this.right))+1;
-                        return balanceOnce(this);
-                        //return balanceAfterInsertLeft(this, previousHeight);
+                        updateHeight(this);
+                        return balanceAfterInsertLeft(this, previousHeight);
                     }
                 }
             },
@@ -167,13 +165,13 @@ var SortedList = defineClass({
                 }
 
                 if(node.left || node.right || node.height>1){
-                    throw error("node should be singleton for insertNode function.");
+                    throw new Error("node should be singleton for insertNode function.");
                 }
 
                 var sample = node.data[0];
                 var check = this.comparer(sample, this.data[0]);
                 if(check===0){
-                    throw error("node should not exist.");
+                    throw new Error("node with value '"+sample+"' should not exist.");
                 }
 
                 if(check>0){
@@ -252,7 +250,7 @@ var SortedList = defineClass({
                         }
                         else{
                             this.right = this.right.cut(element, side, includeHead, removed);
-                            this.height = max(getHeight(this.right)+getHeight(this.left))+1;
+                            updateHeight(this);
                             return balance(this);
                         }
                     }
@@ -271,7 +269,7 @@ var SortedList = defineClass({
                         }
                         else{
                             this.left = this.left.cut(element, side, includeHead, removed);
-                            this.height = max(getHeight(this.right)+getHeight(this.left))+1;
+                            updateHeight(this);
                             return balance(this);
                         }
                     }
@@ -309,7 +307,6 @@ var SortedList = defineClass({
     },
 
     print: function(){
-        var _write = process.stdout.write;
         var size = 5;
         var space = Array(size+1).join(" ");
         var formatValue= function(d){
@@ -337,22 +334,27 @@ var SortedList = defineClass({
             var output = "";
             for(var i = 0;i<queue.length;i++){
                 var head=queue[i];
-                var value = (head==null)?space:formatValue(head.data);
-                output+=levelSpace+value+levelSpace;
-
-                if(head==null){
-                    newQueue.push(null);
-                    newQueue.push(null);
+                if(head==space){
+                    output+=space;
+                    newQueue.push(space);
                 }
                 else{
-                    if(head.left)countNode++;
-                    if(head.right)countNode++;
-                    newQueue.push(head.left);
-                    newQueue.push(head.right);
-                }
+                    var value = (head==null)?space:formatValue(head.data);
+                    output+=levelSpace+value+levelSpace;
 
-                if(i>0)
-                    output+=space;
+                    if(head==null){
+                        newQueue.push(null);
+                        newQueue.push(space);
+                        newQueue.push(null);
+                    }
+                    else{
+                        if(head.left)countNode++;
+                        if(head.right)countNode++;
+                        newQueue.push(head.left);
+                        newQueue.push(space);
+                        newQueue.push(head.right);
+                    }
+                }
             }
             console.log(output);
 
