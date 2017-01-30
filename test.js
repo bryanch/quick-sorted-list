@@ -104,5 +104,14 @@ describe('sorted-list', function(){
         expect(sorted.length).to.equal(rawdata.length-removed.length);
     });
 
+    it('validate iloc function', function(){
+        var sorted = new SortedList();
+        sorted.insertBatch(rawdata);
+        
+        expect(sorted.iloc(6)).to.equal(5);
+        var removed = sorted.cut(-1, 'left', true);
+        expect(sorted.iloc(6)).to.equal(10);
+    });
+
 });
 

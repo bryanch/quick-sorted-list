@@ -286,6 +286,21 @@ var SortedList = defineClass({
                 }
             },
 
+            iloc: function(index){
+                if(index>=this.count || index<0)
+                    return null;
+                
+                var leftCount = getDataCount(this.left);
+                if(index<leftCount)
+                    return this.left.iloc(index);
+                
+                index -= leftCount;
+                if(index<this.data.length)
+                    return this.data[index];
+                
+                return this.right.iloc(index-this.data.length);
+            },
+
             toArray: function(){
                 var result = [];
                 if(this.left!=null)result=result.concat(this.left.toArray());
@@ -388,6 +403,10 @@ var SortedList = defineClass({
 
         this.length = this.data.count;
         return result;
+    },
+
+    iloc: function(index){
+        return this.data.iloc(index);
     }
 });
 
