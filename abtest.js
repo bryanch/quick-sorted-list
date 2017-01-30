@@ -4,8 +4,13 @@
 // 
 // the "1.0.2" is a tagged commit.
 
+// Note it turns out the noise in measuring the perf is so big that 
+// even running exactly the same code could have 10-20% diff in elapsed time.
+// so unless the delta is over 30%, the result does not necessarily means 
+// the new code is better or worse than the old base one.
+
 // Here start the a/b perf test:
-var sampleSize = 1000000;
+var sampleSize = 100000;
 var data = [];
 for(var i=0;i<sampleSize;i++)
     data.push(Math.random());
@@ -34,17 +39,26 @@ function perfDelta(baseET, newET){
 }
 
 console.log(' \t \t\t Base \t\t Current \t\t Delta%');
-var measureCount = 5;
-var avgBasePerf = 0, avgCurrentPerf = 0;
+var measureCount = 7;
+var basePerfs = [], currentPerfs = [];
 for(var i=0;i<measureCount;i++){
     var basePerf = perfTest(base, data);
-    avgBasePerf+=basePerf;
     var currentPerf = perfTest(current, data);
-    avgCurrentPerf += currentPerf;
 
     console.log(' \t '+ i + '\t '+basePerf + 'ns\t\t'+ currentPerf +'ns\t\t'+perfDelta(basePerf, currentPerf));
+
+    basePerfs.push(basePerf);
+    currentPerfs.push(currentPerf);
 }
-avgBasePerf/=measureCount;
-avgCurrentPerf/=measureCount;
+
+function calculateAverage(floats){
+    var max = Math.max(...floats);
+    var min = Math.min(...floats);
+    //console.log(max,min,floats);
+    return (floats.reduce(function(a,b){return a+b;}, 0)-max-min)/(floats.length-2);
+}
+
+var avgBasePerf = calculateAverage(basePerfs);
+var avgCurrentPerf = calculateAverage(currentPerfs);
 console.log(' Average\t '+avgBasePerf + 'ns\t\t'+ avgCurrentPerf +'ns\t\t'+perfDelta(avgBasePerf, avgCurrentPerf));
 
