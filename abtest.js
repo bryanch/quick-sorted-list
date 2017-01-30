@@ -6,8 +6,9 @@
 
 // Note it turns out the noise in measuring the perf is so big that 
 // even running exactly the same code could have 10-20% diff in elapsed time.
-// so unless the delta is over 30%, the result does not necessarily means 
-// the new code is better or worse than the old base one.
+// However, the refactoring work using array instead of the left and right property
+// keep getting a ~35% performance downgrade based on this test, might need to revisit
+// that change later.
 
 // Here start the a/b perf test:
 var sampleSize = 100000;
