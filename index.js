@@ -222,22 +222,27 @@ var SortedList = defineClass({
             var output = "";
             for(var i = 0;i<queue.length;i++){
                 var head=queue[i];
-                var value = (head==null)?space:formatValue(head.data);
-                output+=levelSpace+value+levelSpace;
-
-                if(head==null){
-                    newQueue.push(null);
-                    newQueue.push(null);
+                if(head==space){
+                    output+=space;
+                    newQueue.push(space);
                 }
                 else{
-                    if(head.nodes[0])countNode++;
-                    if(head.nodes[1])countNode++;
-                    newQueue.push(head.nodes[0]);
-                    newQueue.push(head.nodes[1]);
-                }
+                    var value = (head==null)?space:formatValue(head.data);
+                    output+=levelSpace+value+levelSpace;
 
-                if(i>0)
-                    output+=space;
+                    if(head==null){
+                        newQueue.push(null);
+                        newQueue.push(space);
+                        newQueue.push(null);
+                    }
+                    else{
+                        if(head.nodes[0])countNode++;
+                        if(head.nodes[1])countNode++;
+                        newQueue.push(head.nodes[0]);
+                        newQueue.push(space);
+                        newQueue.push(head.nodes[1]);
+                    }
+                }
             }
             console.log(output);
 
