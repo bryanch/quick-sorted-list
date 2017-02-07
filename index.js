@@ -28,6 +28,10 @@ function updateHeight(tree){
     tree.height = max(getHeight(tree.left), getHeight(tree.right))+1;
 }
 
+function updateCount(tree){
+    tree.count = getDataCount(tree.left)+tree.data.length+getDataCount(tree.right);
+}
+
 function rotateLeft(tree){
     var root = tree.right;
     tree.right = root.left;
@@ -314,6 +318,156 @@ var SortedList = defineClass({
                     return this.left==null?0:this.left.loc(element, side);
             },
 
+            removeHead: function(){
+                if(this.left==null){
+                    if(this.right==null){
+                        return null;
+                    }
+                    else{
+                        return this.right;
+                    }
+                }
+                else{
+                    if(this.right==null){
+                        return this.left;
+                    }
+                    else{
+                        var newHead;
+                        var pathToTheLeaf = [];
+                        if(this.left.height>=this.right.height){
+                            newHead = this.left;
+                            while(newHead.right!=null){
+                                pathToTheLeaf.push(newHead);
+                                newHead=newHead.right;
+                            }
+
+                            if(pathToTheLeaf.length===0){
+                                newHead.right = this.right;
+                            }
+                            else{
+                                var parent = pathToTheLeaf.pop();
+                                parent.right = newHead.left;
+                                newHead.left = this.left;
+                                newHead.right= this.right;
+
+                                updateHeight(parent);
+                                updateCount(parent);
+                                while(true){
+                                    var grandParent = pathToTheLeaf.pop();
+                                    if(grandParent==null){
+                                        newHead.left = balanceOnce(parent);
+                                        break;
+                                    }
+                                    else
+                                        grandParent.right = balanceOnce(parent);
+                                    
+                                    parent = grandParent;
+                                }
+                            }
+                        }
+                        else{
+                            newHead = this.right;
+                            while(newHead.left!=null){
+                                pathToTheLeaf.push(newHead);
+                                newHead=newHead.left;
+                            }
+
+                            if(pathToTheLeaf.length===0){
+                                newHead.left = this.left;
+                            }
+                            else{
+                                var parent = pathToTheLeaf.pop();
+                                parent.left = newHead.right;
+                                newHead.right = this.right;
+                                newHead.left= this.left;
+
+                                updateHeight(parent);
+                                updateCount(parent);
+                                while(true){
+                                    var grandParent = pathToTheLeaf.pop();
+                                    if(grandParent==null){
+                                        newHead.right = balanceOnce(parent);
+                                        break;
+                                    }
+                                    else
+                                        grandParent.left = balanceOnce(parent);
+                                    
+                                    parent = grandParent;
+                                }
+                            }
+                        }
+
+                        updateHeight(newHead);
+                        updateCount(newHead);
+                        return newHead;
+                    }
+                }
+            },
+
+            remove: function(element, removed){
+                var check = this.comparer(element, this.data[0]);
+                if(check==0){
+                    var newHead = this.removeHead();
+                    if(removed)
+                        for(var i=0;i<this.data.length;i++)
+                            removed.push(this.data[i]);
+                    return newHead;
+                }
+
+                if(check>0){
+                    if(this.right==null){
+                        return this;
+                    }
+                    else{
+                        this.right = this.right.remove(element, removed);
+                        updateCount(this);
+                        return balanceOnce(this);
+                    }
+                }
+                else{
+                    if(this.left==null){
+                        return this;
+                    }
+                    else{
+                        this.left=this.left.remove(element, removed);
+                        updateCount(this);
+                        return balanceOnce(this);
+                    }
+                }
+            },
+
+            removeByIndex: function(index, removed){
+                if(index>=this.count || index<0){
+                    throw new Error("Index out of range.");
+                }
+
+                var leftCount = getDataCount(this.left);
+                if(index<leftCount){
+                    this.left=this.left.removeByIndex(index, removed);
+                    return balanceOnce(this);
+                }
+                
+                index -= leftCount;
+                if(index<this.data.length){
+                    if(this.data.length===1){
+                        var newHead = this.removeHead();
+                        if(removed)removed.push(this.data[0]);
+                        return newHead;
+                    }
+                    else{
+                        this.count--;
+                        var r = this.data.splice(index, 1);
+                        if(removed)
+                            removed.push(r[0]);
+                        return this;
+                    }
+                }
+                else{
+                    this.right = this.right.removeByIndex(index-this.data.length, removed);
+                    return balanceOnce(this);
+                }
+            },
+
             toArray: function(){
                 var result = [];
                 if(this.left!=null)result=result.concat(this.left.toArray());
@@ -424,6 +578,18 @@ var SortedList = defineClass({
 
     loc: function(element, side){
         return this.data.loc(element, side);
+    },
+
+    remove: function(element){
+        var removed = [];
+        this.data = this.data.remove(element, removed);
+        return removed;
+    },
+
+    removeByIndex: function(index){
+        var removed = [];
+        this.data = this.data.removeByIndex(index, removed);
+        return removed[0];
     }
 });
 

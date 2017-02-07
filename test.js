@@ -58,7 +58,7 @@ describe('sorted-list', function(){
     it('validate cut function', function(){
         var sorted = new SortedList();
         sorted.insertBatch(rawdata);
-        sorted.print();
+        //sorted.print();
         
         console.time('Cut operation 1');
         var removed = sorted.cut(-1, 'left', true);
@@ -66,28 +66,28 @@ describe('sorted-list', function(){
         expect(removed).to.eql([-3, -2, -1]);
         expect(sorted.toArray()).to.eql([0, 2, 2, 5, 7, 8, 10, 11, 22]);
 
-        sorted.print();
+        //sorted.print();
         console.time('Cut operation 2');
         removed = sorted.cut(2, 'left', false);
         console.timeEnd('Cut operation 2');
         expect(removed).to.eql([0]);
         expect(sorted.toArray()).to.eql([2, 2, 5, 7, 8, 10, 11, 22]);
 
-        sorted.print();
+        //sorted.print();
         console.time('Cut operation 3');
         removed = sorted.cut(2, 'left', true);
         console.timeEnd('Cut operation 3');
         expect(removed).to.eql([2,2]);
         expect(sorted.toArray()).to.eql([5, 7, 8, 10, 11, 22]);
 
-        sorted.print();
+        //sorted.print();
         console.time('Cut operation 4');
         removed = sorted.cut(6, 'right', false);
         console.timeEnd('Cut operation 4');
         expect(removed).to.eql([7, 8, 10, 11, 22]);
         expect(sorted.toArray()).to.eql([5]);
 
-        sorted.print();
+        //sorted.print();
         console.time('Cut operation 5');
         removed = sorted.cut(4, 'right', false);
         console.timeEnd('Cut operation 5');
@@ -121,5 +121,35 @@ describe('sorted-list', function(){
         expect(sorted.loc(2, 'right')).to.equal(6);
     });
 
+    it('validate removeByIndex function', function(){
+        var sorted = new SortedList();
+        sorted.insertBatch(rawdata);
+        
+        var r = sorted.removeByIndex(5);
+        //sorted.print();
+        expect(sorted.toArray()).to.eql([-3, -2, -1, 0, 2, 5, 7, 8, 10, 11, 22]);
+        expect(r).to.equal(2);
+        r = sorted.removeByIndex(10);
+        expect(sorted.toArray()).to.eql([-3, -2, -1, 0, 2, 5, 7, 8, 10, 11]);
+        expect(r).to.equal(22);
+        r = sorted.removeByIndex(0);
+        expect(sorted.toArray()).to.eql([-2, -1, 0, 2, 5, 7, 8, 10, 11]);
+        expect(r).to.equal(-3);
+    });
+
+    it('validate remove function', function(){
+        var sorted = new SortedList();
+        sorted.insertBatch(rawdata);
+        
+        var r = sorted.remove(2);
+        expect(sorted.toArray()).to.eql([-3, -2, -1, 0, 5, 7, 8, 10, 11, 22]);
+        expect(r).to.eql([2, 2]);
+        r = sorted.remove(22);
+        expect(sorted.toArray()).to.eql([-3, -2, -1, 0, 5, 7, 8, 10, 11]);
+        expect(r).to.eql([22]);
+        r = sorted.remove(-4);
+        expect(sorted.toArray()).to.eql([-3, -2, -1, 0, 5, 7, 8, 10, 11]);
+        expect(r).to.eql([]);
+    });
 });
 
