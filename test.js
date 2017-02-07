@@ -104,21 +104,21 @@ describe('sorted-list', function(){
         expect(sorted.length).to.equal(rawdata.length-removed.length);
     });
 
-    it('validate iloc function', function(){
+    it('validate locateByIndex function', function(){
         var sorted = new SortedList();
         sorted.insertBatch(rawdata);
         
-        expect(sorted.iloc(6)).to.equal(5);
+        expect(sorted.locateByIndex(6)).to.equal(5);
         var removed = sorted.cut(-1, 'left', true);
-        expect(sorted.iloc(6)).to.equal(10);
+        expect(sorted.locateByIndex(6)).to.equal(10);
     });
 
-    it('validate loc function', function(){
+    it('validate locate function', function(){
         var sorted = new SortedList();
         sorted.insertBatch(rawdata);
         
-        expect(sorted.loc(6, 'left')).to.equal(7);
-        expect(sorted.loc(2, 'right')).to.equal(6);
+        expect(sorted.locate(6, 'left')).to.equal(7);
+        expect(sorted.locate(2, 'right')).to.equal(6);
     });
 
     it('validate removeByIndex function', function(){

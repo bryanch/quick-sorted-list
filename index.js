@@ -572,11 +572,11 @@ var SortedList = defineClass({
         return result;
     },
 
-    iloc: function(index){
+    locateByIndex: function(index){
         return this.data.iloc(index);
     },
 
-    loc: function(element, side){
+    locate: function(element, side){
         return this.data.loc(element, side);
     },
 
