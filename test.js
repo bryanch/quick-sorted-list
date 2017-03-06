@@ -151,5 +151,13 @@ describe('sorted-list', function(){
         expect(sorted.toArray()).to.eql([-3, -2, -1, 0, 5, 7, 8, 10, 11]);
         expect(r).to.eql([]);
     });
+
+    it('validate allowDuplicate=false', function(){
+        var sorted = new SortedList(undefined, false);
+        var result = sorted.insertBatch(rawdata);
+        expect(result).equals(false);
+        
+        expect(sorted.toArray()).to.eql([-2, -1, 0, 2, 5, 7, 10, 11, 22]);
+    });
 });
 

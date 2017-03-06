@@ -127,7 +127,7 @@ function balanceAfterInsertLeft(tree, prevLeftHeight){
 }
 
 var SortedList = defineClass({
-    constructor: function(comparer){
+    constructor: function(comparer, allowDuplicate){
         var AVLTree = defineClass({
             constructor: function(){
                 this.left = null;
@@ -147,6 +147,7 @@ var SortedList = defineClass({
                 else{
                     var check = this.comparer(element, this.data[0]);
                     if(check===0){
+                        if(!this.allowDuplicate)return false;
                         this.data.push(element);
                         return this;
                     }
@@ -156,7 +157,10 @@ var SortedList = defineClass({
                         }
 
                         var previousHeight = this.right.height;
-                        this.right = this.right.insert(element);
+                        var result = this.right.insert(element);
+                        if(result==false)return false;
+
+                        this.right = result;
                         updateHeight(this);
                         return balanceAfterInsertRight(this, previousHeight);
                     }
@@ -166,7 +170,10 @@ var SortedList = defineClass({
                         }
 
                         var previousHeight = this.left.height;
-                        this.left = this.left.insert(element);
+                        var result = this.left.insert(element);
+                        if(result==false)return false;
+                        
+                        this.left = result;
                         updateHeight(this);
                         return balanceAfterInsertLeft(this, previousHeight);
                     }
@@ -478,6 +485,7 @@ var SortedList = defineClass({
         });
 
         AVLTree.prototype.comparer = comparer || defaultComparer;
+        AVLTree.prototype.allowDuplicate = (allowDuplicate==undefined)?true:allowDuplicate;
 
         this.createNewHead = function(){return new AVLTree();};
         this.data = this.createNewHead();
@@ -485,15 +493,25 @@ var SortedList = defineClass({
     },
 
     insert: function(element){
-        this.data = this.data.insert(element);
+        var result = this.data.insert(element); 
+        if(result==false)return false;
+        this.data = result;
         this.length++;
+        return true;
     },
 
     insertBatch: function(elements){
         var data = this.data;
-        elements.forEach(function(e){data=data.insert(e);});
+        var result;
+        for(var i = 0;i<elements.length;i++){
+            var result = data.insert(elements[i]);
+            if(result===false)break;
+            data=result;
+        }
+
         this.data = data;
         this.length = data.count;
+        return result!==false;
     },
 
     toArray: function(){
